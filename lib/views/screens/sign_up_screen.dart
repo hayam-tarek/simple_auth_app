@@ -4,11 +4,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_auth_app/views/screens/home_screen.dart';
 
-class SignUpScreen extends StatelessWidget {
-  SignUpScreen({super.key});
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
   final GlobalKey<FormState> formKey = GlobalKey();
 
   String emailAddress = '';
+
   String password = '';
 
   @override
@@ -102,14 +109,18 @@ class SignUpScreen extends StatelessWidget {
                                 await signUp(
                                     emailAddress: emailAddress,
                                     password: password);
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const HomeScreen(),
-                                  ),
-                                );
+                                if (context.mounted) {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const HomeScreen(),
+                                    ),
+                                  );
+                                }
                               } on FirebaseAuthException catch (e) {
-                                handelFirebaseAuthException(e, context);
+                                if (context.mounted) {
+                                  handelFirebaseAuthException(e, context);
+                                }
                               } catch (e) {
                                 log(e.toString());
                               }
@@ -162,6 +173,7 @@ class SignUpScreen extends StatelessWidget {
   }
 
   signUp({required String emailAddress, required String password}) async {
+    // ignore: unused_local_variable
     final credential =
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: emailAddress,
